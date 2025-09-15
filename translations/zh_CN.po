@@ -93,8 +93,8 @@ msgstr "更新未正确签名。"
 
 #: src/ui.cpp:855
 #, c-format
-msgid "A new version of %s is available!"
-msgstr "新版本 %s 可用！"
+msgid "%s %s is available!"
+msgstr "%s %s 版本现已发布！"
 
 #: src/ui.cpp:858
 msgid "Get update"
@@ -102,8 +102,8 @@ msgstr "获取更新"
 
 #: src/ui.cpp:864
 #, c-format
-msgid "%s %s is now available (you have %s). Would you like to download it now?"
-msgstr "%s %s 现在可用（您是 %s）。您想立即下载它吗？"
+msgid "Current version is %s.\nIf you choose to install this update, your connection to the internet will be interrupted until the update is complete."
+msgstr "当前版本为%s。\n如安装更新会导致当前连接中断，需稍后再连接。"
 
 #: src/ui.cpp:895
 msgid "Downloading update..."
