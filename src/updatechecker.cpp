@@ -146,6 +146,11 @@ int UpdateChecker::CompareVersions(const string& verA, const string& verB)
             {
                 const int intA = atoi(a.c_str());
                 const int intB = atoi(b.c_str());
+
+                if ((i == 0 && intA < intB) || (i == 1 && intA < intB)) {
+                    return -100;
+                }
+
                 if ( intA > intB )
                     return 1;
                 else if ( intA < intB )
@@ -218,7 +223,7 @@ UpdateChecker::UpdateChecker(): Thread("WinSparkle updates check")
 {
 }
 
-void UpdateChecker::PerformUpdateCheck()
+void UpdateChecker::PerformUpdateCheck(bool isFirstCheck)
 {
     try
     {
@@ -258,8 +263,10 @@ void UpdateChecker::PerformUpdateCheck()
         const std::string currentVersion =
                 WideToAnsi(Settings::GetAppBuildVersion());
 
+        auto comparisonResult = CompareVersions(currentVersion, appcast.Version);
+
         // Check if our version is out of date.
-        if ( !appcast.IsValid() || CompareVersions(currentVersion, appcast.Version) >= 0 )
+        if ( !appcast.IsValid() || comparisonResult >= 0 )
         {
             // The same or newer version is already installed.
             UI::NotifyNoUpdates(ShouldAutomaticallyInstall());
@@ -270,6 +277,12 @@ void UpdateChecker::PerformUpdateCheck()
         if ( ShouldSkipUpdate(appcast) )
         {
             UI::NotifyNoUpdates(ShouldAutomaticallyInstall());
+            return;
+        }
+
+        // 大版本或第一次检测，则自动更新
+        if (isFirstCheck || comparisonResult == -100) {
+            UI::NotifyUpdateAvailable(appcast, true);
             return;
         }
 
@@ -321,7 +334,7 @@ void PeriodicUpdateChecker::Run()
             time_t nextCheck = lastCheck + interval;
             if (currentTime >= nextCheck)
             {
-                PerformUpdateCheck();
+                PerformUpdateCheck(false);
                 sleepTimeInSeconds = interval;
             }
             else
@@ -340,7 +353,7 @@ void OneShotUpdateChecker::Run()
     // no initialization to do, so signal readiness immediately
     SignalReady();
 
-    PerformUpdateCheck();
+    PerformUpdateCheck(true);
 }
 
 

@@ -67,7 +67,7 @@ protected:
     virtual bool ShouldAutomaticallyInstall() const { return false; }
 
 protected:
-    virtual void PerformUpdateCheck();
+    virtual void PerformUpdateCheck(bool isFirstCheck);
     virtual bool IsJoinable() const { return false; }
 };
 
