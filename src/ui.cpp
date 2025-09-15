@@ -703,6 +703,11 @@ void UpdateDialog::OnRunInstaller(wxCommandEvent&)
 
 bool UpdateDialog::RunInstaller()
 {
+    // auto filePath = std::wstring(m_updateFile);
+    // if (m_installAutomatically) {
+    //     filePath += std::wstring(L" /SILENT /SP-");
+    // }
+    // switch (ApplicationController::UserRunInstallerCallback(filePath.c_str()))
     switch (ApplicationController::UserRunInstallerCallback(m_updateFile.t_str()))
     {
         case 0:
@@ -725,6 +730,12 @@ bool UpdateDialog::RunInstaller()
     sei.lpFile = m_updateFile.t_str();
     sei.nShow = SW_SHOWDEFAULT;
     sei.fMask = SEE_MASK_FLAG_NO_UI;	// We display our own dialog box on error
+
+    // 如果是自动安装，则自动加静默参数
+    if (m_installAutomatically) {
+        wArgs = AnsiToWide("/VERYSILENT /SP- /NORESTART /FORCECLOSEAPPLICATIONS /SUPPRESSMSGBOXES");
+        sei.lpParameters = wArgs.c_str();
+    }
 
     if (! m_installerArguments.empty())
     {
@@ -876,7 +887,7 @@ void UpdateDialog::StateUpdateAvailable(const Appcast& info, bool installAutomat
         }
 
         m_heading->SetLabel(
-            wxString::Format(_("A new version of %s is available!"), appname));
+            wxString::Format(_("%s %s is available!"), appname, ver_new));
 
         if ( !info.HasDownload() )
             m_installButton->SetLabel(_("Get update"));
@@ -885,8 +896,8 @@ void UpdateDialog::StateUpdateAvailable(const Appcast& info, bool installAutomat
         (
             wxString::Format
             (
-                _("%s %s is now available (you have %s). Would you like to download it now?"),
-                appname, ver_new, ver_my
+                _("Current version is %s.\nIf you choose to install this update, your connection to the internet will be interrupted until the update is complete."),
+                ver_my
             ),
             showRelnotes ? RELNOTES_WIDTH : MESSAGE_AREA_WIDTH
         );
